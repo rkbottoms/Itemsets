@@ -2,9 +2,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * User: Ryan Bottoms
@@ -55,28 +53,49 @@ public class Itemset {
             if (frequencies[j] > (double) numDocuments * threshold) {
                 //add the index of the word
                 indices.add(j);
+                System.out.println(j);
             }
         }
         System.out.println("The number of single words that appear in at least 4% of lyrics is " + indices.size() + ".");
-        List<Pair> pairIndices = new ArrayList<>();
-        int pairIndex1;
-        int pairIndex2;
-        for(int i = 0; i < 270; i++) {
-            for(int j = i + 1; j < 271; j++) {
+        List<Pair> pairList = new ArrayList<>();
+        int pairIndex1, pairIndex2;
+        for(int i = 0; i < indices.size() - 1; i++) {
+            for(int j = i + 1; j < indices.size(); j++) {
                 pairIndex1 = indices.get(i);
                 pairIndex2 = indices.get(j);
 
                 if(checkPairs(bitMatrix, pairIndex1, pairIndex2)) {
                     //create pair object
                     //store object in array
-                    Pair p = Pair.createPair(pairIndex1, pairIndex2);
+                    Pair<Integer, Integer> p = Pair.createPair(pairIndex1, pairIndex2);
                     System.out.println(p);
-                    pairIndices.add(p);
+                    pairList.add(p);
                 }
             }
         }
-        System.out.println("The number of pairs that appear in at least 4% of lyrics is " + pairIndices.size() + ".");
+        System.out.println("The number of pairs that appear in at least 4% of lyrics is " + pairList.size() + ".");
+        //create array for indices that compose the pairs
+        List pairIndices = removeDuplicates(pairList);
+        List< Triple<Integer, Integer, Integer> > tripleList = new ArrayList<>();
+        int tripleIndex1, tripleIndex2, tripleIndex3;
+        for(int i = 0; i < pairList.size() - 2; i++) {
+            for(int j = i + 1; j < pairList.size() - 1; j++) {
+                for(int k = j + 1; k < pairList.size(); k++) {
+                    tripleIndex1 = (int) pairIndices.get(i);
+                    tripleIndex2 = (int) pairIndices.get(j);
+                    tripleIndex3 = (int) pairIndices.get(k);
 
+                    if(checkTriples(bitMatrix,tripleIndex1, tripleIndex2, tripleIndex3)) {
+                        //create triple object
+                        //store object in array
+                        Triple<Integer,Integer,Integer> t = Triple.createTriple(tripleIndex1, tripleIndex2, tripleIndex3);
+                        System.out.println(t);
+                        tripleList.add(t);
+                    }
+                }
+            }
+        }
+        System.out.println("The number of triples that appear in at least 4% of lyrics is " + tripleList.size() + ".");
     }
     private static boolean checkPairs(BitSet[] bitMatrix, int val1, int val2) {
         int count = 0;
@@ -87,7 +106,28 @@ public class Itemset {
         }
         return count > 210519 * .04;
     }
-    private static boolean checkTriles(BitSet[] bitMatrix, int val1, int val2, int val3) {
+    private static boolean checkTriples(BitSet[] bitMatrix, int val1, int val2, int val3) {
+        int count = 0;
+        for(int i = 0; i < 210519; i++) {
+            if(bitMatrix[val1].get(i) && bitMatrix[val2].get(i) && bitMatrix[val3].get(i)) {
+                count++;
+            }
+        }
 
+        return count > (double) 210519 * .04;
+    }
+
+    public static List removeDuplicates(List<Pair> list) {
+        List<Integer> result = new ArrayList<>();
+        Set<Integer> set = new HashSet<>();
+        for (Pair pair : list) {
+            if (set.add((Integer) pair.getElement1())) {
+                result.add((Integer) pair.getElement1());
+            }
+            if (set.add((Integer) pair.getElement2())) {
+                result.add((Integer) pair.getElement2());
+            }
+        }
+        return result;
     }
 }
