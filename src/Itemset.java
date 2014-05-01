@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.List;
 
 /**
  * User: Ryan Bottoms
@@ -11,9 +12,9 @@ import java.util.BitSet;
  * Time: 8:15 PM
  */
 public class Itemset {
-    public static void main (String[] args) throws IOException {
-        int numDocuments = 210519;
-        int numWords = 5000;
+    public static void main(String[] args) throws IOException {
+        final int numDocuments = 210519;
+        final int numWords = 5000;
         double threshold = .04;
         int[] frequencies = new int[numWords];
         //create characteristic matrix
@@ -29,7 +30,7 @@ public class Itemset {
         String line;
         int index;
         int count = 0;
-        while((line = br.readLine()) != null) {
+        while ((line = br.readLine()) != null) {
             //splitting up each line by comma
             String[] parts = line.split(",");
             for (int i = 2; i < parts.length; i++) {
@@ -38,29 +39,55 @@ public class Itemset {
                 //convert word index to integer
                 index = Integer.parseInt(temp[0]);
                 //set the bit value of the word in the song to 1
-                bitMatrix[index-1].set(count);
+                bitMatrix[index - 1].set(count);
                 //increment the counts of words found in each document
-                frequencies[index-1]++;
+                frequencies[index - 1]++;
             }
             count++;
         }
+        br.close();
         //structure to keep track of indices of words that satisfy threshold
-        ArrayList<Integer> indices = new ArrayList<>();
-        //keep track of the number of words above threshold
-        int wordAboveThreshold = 0;
+        List<Integer> indices = new ArrayList<>();
         //ignore the first 100 words
         //the first 100 words are assumed to be stop words
         //find the number of words that have occurrences about the threshold
         for (int j = 100; j < frequencies.length; j++) {
             if (frequencies[j] > (double) numDocuments * threshold) {
-                wordAboveThreshold++;
+                //add the index of the word
                 indices.add(j);
             }
         }
-        System.out.println("The number of single words that appear in at least 4% of lyrics is " + wordAboveThreshold + ".");
+        System.out.println("The number of single words that appear in at least 4% of lyrics is " + indices.size() + ".");
+        List<Pair> pairIndices = new ArrayList<>();
+        int pairIndex1;
+        int pairIndex2;
+        for(int i = 0; i < 270; i++) {
+            for(int j = i + 1; j < 271; j++) {
+                pairIndex1 = indices.get(i);
+                pairIndex2 = indices.get(j);
 
-        //ignore words that don't appear in at least 4% of lyrics
-        //find number pairs that appear in at least 4% of lyrics
+                if(checkPairs(bitMatrix, pairIndex1, pairIndex2)) {
+                    //create pair object
+                    //store object in array
+                    Pair p = Pair.createPair(pairIndex1, pairIndex2);
+                    System.out.println(p);
+                    pairIndices.add(p);
+                }
+            }
+        }
+        System.out.println("The number of pairs that appear in at least 4% of lyrics is " + pairIndices.size() + ".");
+
+    }
+    private static boolean checkPairs(BitSet[] bitMatrix, int val1, int val2) {
+        int count = 0;
+        for(int i = 0; i < 210519; i++){
+            if(bitMatrix[val1].get(i) && bitMatrix[val2].get(i)) {
+                count++;
+            }
+        }
+        return count > 210519 * .04;
+    }
+    private static boolean checkTriles(BitSet[] bitMatrix, int val1, int val2, int val3) {
 
     }
 }
