@@ -4,28 +4,29 @@
  * Time: 5:57 PM
  */
 public class Pair<K,V> {
-    private final K element0;
-    private final V element1;
+    private final K element1;
+    private final V element2;
 
-    public static <K, V> Pair<K, V> createPair(K element0, V element1) {
-        return new Pair<K, V>(element0, element1);
+    public static <K, V> Pair<K, V> createPair(K element1, V element2) {
+        return new Pair<K, V>(element1, element2);
     }
 
-    public Pair(K element0, V element1) {
-        this.element0 = element0;
+    public Pair(K element1, V element2) {
         this.element1 = element1;
+        this.element2 = element2;
     }
 
-    public K getElement0() {
-        return element0;
-    }
-
-    public V getElement1() {
+    public K getElement1() {
         return element1;
     }
+
+    public V getElement2() {
+        return element2;
+    }
+
     @Override
     public String toString() {
-    return "{" + element0 + ", " + element1 + "}";
+    return "{" + element1 + ", " + element2 + "}";
     }
 
 }
